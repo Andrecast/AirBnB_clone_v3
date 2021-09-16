@@ -18,6 +18,7 @@ import json
 import os
 import pep8
 import unittest
+
 FileStorage = file_storage.FileStorage
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
@@ -117,18 +118,20 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t == 'db', "not testing db storage")
     def test_get(self):
         """Test get of storage engine with valid data"""
+        storage = FileStorage()
         obj = State(name="New York")
         obj.save()
         test_id = obj.id
-        self.assertTrue(obj.get(State, test_id) == test_id)
+        self.assertTrue(storage.get(State, test_id) == obj)
         obj_1 = State(name="Texas")
         obj_1.save()
         test_id1 = "null"
-        self.assertFalse(object.get(State, test_id))
+        self.assertFalse(storage.get(State, test_id1))
 
     @unittest.skipIf(models.storage_t == 'db', "not testing db storage")
     def test_count(self):
         """Test count of storage engine with class name"""
-        objects = self.all(cls)
-        count_objs = objects.count()
-        self.asserEqual(objects.count(), count_objs)
+        storage = FileStorage()
+        objects = storage.all()
+        count_objs = storage.count()
+        self.assertEqual(storage.count(), count_objs)

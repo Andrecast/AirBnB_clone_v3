@@ -91,17 +91,19 @@ class TestFileStorage(unittest.TestCase):
     def test_get(self):
         """Test get of storage engine with valid data"""
         obj = State(name="New York")
+        obj.new(obj)
         obj.save()
-        test_id = object.id()
-        self.assertTrue(object.get(State, test_id) == test_id)
+        test_id = obj.id
+        self.assertTrue(models.storage.get(State, test_id) == obj)
         obj_1 = State(name="Texas")
+        obj_1.new(obj_1)
         obj_1.save()
         test_id1 = "null"
-        self.assertFalse(object.get(State, test_id))
+        self.assertFalse(models.storage.get(State, test_id))
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_count(self):
         """Test count of storage engine with class name"""
-        objects = self.all(cls)
+        objects = models.storage.all(cls)
         count_objs = objects.count()
         self.asserEqual(objects.count(), count_objs)
