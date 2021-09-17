@@ -21,16 +21,15 @@ def status():
 def stats():
     """Count all classes"""
     dicc = {}
-    list_items = [
-        State,
-        City,
-        User,
-        Place,
-        Amenity,
-        Review
-    ]
-    i = 0
-    for item in list_items:
-        obj = item()
-        dicc[str(obj)] = storage.count(item)
+    list_items = {
+        'states': State,
+        'cities': City,
+        'users': User,
+        'places': Place,
+        'amenities': Amenity,
+        'reviews': Review
+    }
+
+    for key, value in list_items.items():
+        dicc[key] = storage.count(value)
     return jsonify(dicc)
