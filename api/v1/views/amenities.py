@@ -43,7 +43,7 @@ def amenitiesPost():
     try:
         req = request.get_json()
         if 'name' not in req:
-            return "Missing name", 400
+            return "Missing name\n", 400
         new_obj = Amenity(name=req['name'])
         storage.new(new_obj)
         storage.save()
