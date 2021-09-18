@@ -20,7 +20,7 @@ def statesById(state_id):
     states = storage.all(State).values()
     obj = [item for item in states if item.id == state_id]
     if obj:
-        return jsonify(str(obj[0]))
+        return jsonify(obj[0].to_dict())
     return jsonify({"error": "Not found"}), 404
 
 
@@ -42,11 +42,11 @@ def statePost():
     try:
         req = request.get_json()
         if 'name' not in req:
-            return "Missing name", 400
+            return "Missing name\n", 400
         new_obj = State(name=req['name'])
         storage.new(new_obj)
         storage.save()
-        return jsonify(str(new_obj)), 201
+        return jsonify(new_obj.to_dict()), 201
     except:
         return "Not a JSON\n", 400
 
@@ -61,7 +61,7 @@ def statePut(state_id):
             for key, value in req.items():
                 setattr(obj, key, value)
             storage.save()
-            return jsonify(str(obj)), 200
+            return jsonify(obj.to_dict()), 200
         return handle_err('err')
     except:
         return "Not a JSON\n", 400
