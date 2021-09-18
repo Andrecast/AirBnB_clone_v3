@@ -62,7 +62,7 @@ def usersPut(user_id):
     """ This method update an object through http request """
     try:
         req = request.get_json()
-        obj = storage.get(User, users_id)
+        obj = storage.get(User, user_id)
         if obj:
             for key, value in req.items():
                 setattr(obj, key, value)
