@@ -43,9 +43,9 @@ def usersPost():
     try:
         req = request.get_json()
         if 'email' not in req:
-            return "Missing email", 400
+            return "Missing email\n", 400
         if 'password' not in req:
-            return "Missing password", 400
+            return "Missing password\n", 400
         new_obj = User()
         for key, value in req.items():
             setattr(new_obj, key, value)
