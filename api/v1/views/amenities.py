@@ -21,7 +21,7 @@ def amenities_id(amenity_id):
     amenities = storage.all(Amenity).values()
     obj = [item for item in amenities if item.id == amenity_id]
     if obj:
-        return jsonify(str(obj[0]))
+        return jsonify(obj[0].to_dict())
     return handle_err('err')
 
 
@@ -47,7 +47,7 @@ def amenitiesPost():
         new_obj = Amenity(name=req['name'])
         storage.new(new_obj)
         storage.save()
-        return jsonify(str(new_obj)), 201
+        return jsonify(new_obj.to_dict()), 201
     except:
         return "Not a JSON\n", 400
 
@@ -63,7 +63,7 @@ def amenitiesPut(amenity_id):
             for key, value in req.items():
                 setattr(obj, key, value)
             storage.save()
-            return jsonify(str(obj)), 200
+            return jsonify(obj.to_dict()), 200
         return handle_err('err')
     except:
         return "Not a JSON\n", 400
