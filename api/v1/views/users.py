@@ -42,8 +42,10 @@ def usersPost():
     """ This method create a new object. """
     try:
         req = request.get_json()
-        if 'name' not in req:
-            return "Missing name", 400
+        if 'email' not in req:
+            return "Missing name\n", 400
+        if 'password' not in req:
+            return "Missing password\n", 400
         new_obj = User(name=req['name'])
         storage.new(new_obj)
         storage.save()
