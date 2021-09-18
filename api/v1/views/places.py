@@ -8,13 +8,14 @@ from models import storage
 from api.v1.app import handle_err
 
 
-@app_views.route('/cities/<city_id>/places',
-                 methods=['GET'], strict_slashes=False)
-def users(city_id):
-    """ This method request for users. """
+@app_views.route('/cities/<city_id>/places', methods=['GET'], strict_slashes=False)
+def places(city_id):
+    """ This method request for places. """
     cities = storage.all(City).values()
-    city_nedded = [city for city in cities if city.id == city_id]
-    return jsonify([item.to_dict() for item in city_nedded.places])
+    city_needed = [city for city in cities if city.id == city_id]
+    if city_needed:
+        return jsonify([item.to_dict() for item in city_needed.places])
+    return handle_err('err')
 
 
 @app_views.route('/places/<place_id>',
@@ -40,8 +41,7 @@ def placesDelete(user_id):
     return handle_err('err')
 
 
-@app_views.route('/cities/<city_id>/places',
-                 methods=['POST'], strict_slashes=False)
+@app_views.route('/cities/<city_id>/places', methods=['POST'], strict_slashes=False)
 def placesPost():
     """ This method create a new object. """
     try:
