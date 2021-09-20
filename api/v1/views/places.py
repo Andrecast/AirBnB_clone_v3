@@ -4,15 +4,16 @@ from api.v1.views import app_views
 from flask import jsonify, request
 from models.place import Place
 from models.city import City
+from models.user import User
 from models import storage
 from api.v1.app import handle_err
 
 
-@app_views.route('/cities/<city_id>/places', methods=['GET'], strict_slashes=False)
+@app_views.route('/cities/<city_id>/places',
+                 methods=['GET'], strict_slashes=False)
 def places(city_id):
     """ This method request for places. """
-    cities = storage.all(City).values()
-    city_needed = [city for city in cities if city.id == city_id]
+    city_needed = storage.get(City, city_id)
     if city_needed:
         return jsonify([item.to_dict() for item in city_needed.places])
     return handle_err('err')
@@ -22,16 +23,15 @@ def places(city_id):
                  methods=['GET'], strict_slashes=False)
 def places_id(place_id):
     """ This method filters the places by id. """
-    places = storage.all(Place).values()
-    obj = [item for item in places if item.id == place_id]
+    obj = storage.get(Place, place_id)
     if obj:
-        return jsonify(obj[0].to_dict())
+        return jsonify(obj.to_dict())
     return handle_err('err')
 
 
 @app_views.route('/places/<place_id>',
                  methods=['DELETE'], strict_slashes=False)
-def placesDelete(user_id):
+def placesDelete(place_id):
     """ This method deletes a place by id """
     obj = storage.get(Place, place_id)
     if obj:
@@ -41,16 +41,24 @@ def placesDelete(user_id):
     return handle_err('err')
 
 
-@app_views.route('/cities/<city_id>/places', methods=['POST'], strict_slashes=False)
-def placesPost():
+@app_views.route('/cities/<city_id>/places',
+                 methods=['POST'], strict_slashes=False)
+def placesPost(city_id):
     """ This method create a new object. """
+    obj = storage.get(City, city_id)
+    if not obj:
+        return handle_err('err')
     try:
         req = request.get_json()
         if 'user_id' not in req:
             return "Missing user_id", 400
+        idUser = storage.get(User, req["user_id"])
+        if not idUser:
+            return handle_err('err')
         if 'name' not in req:
             return "Missing name", 400
         new_obj = Place()
+        setattr(new_obj, "city_id", city_id)
         for key, value in req.items():
             setattr(new_obj, key, value)
         storage.new(new_obj)
@@ -62,7 +70,7 @@ def placesPost():
 
 @app_views.route('/places/<place_id>',
                  methods=['PUT'], strict_slashes=False)
-def placesPut(user_id):
+def placesPut(place_id):
     """ This method update an object through http request """
     try:
         req = request.get_json()
