@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 """City file for views module"""
+from api.v1.views.states import states
 from api.v1.views import app_views
 from flask import jsonify, request
+from models import city
 from models.state import State
 from models.city import City
 from models import storage
@@ -12,20 +14,18 @@ from api.v1.app import handle_err
                  methods=['GET'], strict_slashes=False)
 def cities(state_id):
     """ This method request for cities. """
-    states = storage.all(State).values()
-    needed_state = [state for state in states if state.id == state_id]
+    needed_state = storage.get(State, state_id)
     if needed_state:
-        return jsonify([item.to_dict() for item in needed_state[0].cities])
+        return jsonify([item.to_dict() for item in needed_state.cities])
     return handle_err('err')
 
 
 @app_views.route('/cities/<city_id>', methods=['GET'], strict_slashes=False)
 def cities_id(city_id):
     """ his method filters the city by id. """
-    cities = storage.all(City).values()
-    obj = [item for item in cities if item.id == city_id]
+    obj = storage.get(City, city_id)
     if obj:
-        return jsonify(obj[0].to_dict())
+        return jsonify(obj.to_dict())
     return handle_err('err')
 
 
@@ -42,13 +42,19 @@ def cities_delete(city_id):
 
 @app_views.route('/states/<state_id>/cities',
                  methods=['POST'], strict_slashes=False)
-def cities_create():
+def cities_create(state_id):
     """ This method create a new object. """
+    obj = storage.get(State, state_id)
+    if not obj:
+        return handle_err('err')
     try:
         req = request.get_json()
         if 'name' not in req:
             return "Missing name\n", 400
-        new_obj = City(state_id=state_id, name=req['name'])
+        new_obj = City()
+        setattr(new_obj, "state_id", state_id)
+        for key, value in req.items():
+            setattr(new_obj, key, value)
         storage.new(new_obj)
         storage.save()
         return jsonify(new_obj.to_dict()), 201
