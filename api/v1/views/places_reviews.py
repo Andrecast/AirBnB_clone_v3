@@ -1,35 +1,38 @@
 #!/usr/bin/python3
 """Reviews file for views module"""
+from api.v1.views.places import places_id
 from api.v1.views import app_views
 from flask import jsonify, request
 from models.place import Place
 from models.review import Review
+from models.user import User
 from models import storage
 from api.v1.app import handle_err
 
 
-@app_views.route('/places/<place_id>/reviews', methods=['GET'], strict_slashes=False)
+@app_views.route('/places/<place_id>/reviews',
+                 methods=['GET'], strict_slashes=False)
 def reviews(place_id):
     """ This method request for reviews. """
-    reviews = storage.all(Review).values()
-    place_nedded = [place for place in reviews if place.id == place_id]
-    return jsonify([item.to_dict() for item in place_nedded.reviews])
+    place_nedded = storage.get(Place, place_id)
+    if place_nedded:
+        return jsonify([item.to_dict() for item in place_nedded.reviews])
+    return handle_err('err')
 
 
 @app_views.route('/reviews/<review_id>',
                  methods=['GET'], strict_slashes=False)
 def reviews_id(review_id):
     """ This method filters the reviews by id. """
-    reviews = storage.all(Review).values()
-    obj = [item for item in reviews if item.id == review_id]
+    obj = storage.get(Review, review_id)
     if obj:
-        return jsonify(obj[0].to_dict())
+        return jsonify(obj.to_dict())
     return handle_err('err')
 
 
 @app_views.route('/reviews/<review_id>',
                  methods=['DELETE'], strict_slashes=False)
-def reviewDelete(user_id):
+def reviewDelete(review_id):
     """ This method deletes a place by id """
     obj = storage.get(Review, review_id)
     if obj:
@@ -39,28 +42,36 @@ def reviewDelete(user_id):
     return handle_err('err')
 
 
-@app_views.route('/places/<place_id>/reviews', methods=['POST'], strict_slashes=False)
-def reviewsPost():
+@app_views.route('/places/<place_id>/reviews',
+                 methods=['POST'], strict_slashes=False)
+def reviewsPost(place_id):
     """ This method create a new object. """
-    try:
-        req = request.get_json()
-        if 'user_id' not in req:
-            return "Missing user_id", 400
-        if 'text' not in req:
-            return "Missing text", 400
-        new_obj = Place()
-        for key, value in req.items():
-            setattr(new_obj, key, value)
-        storage.new(new_obj)
-        storage.save()
-        return jsonify(new_obj.to_dict()), 201
-    except:
-        return "Not a JSON\n", 400
+    obj = storage.get(Place, place_id)
+    if not obj:
+        handle_err('err')
+    # try:
+    req = request.get_json()
+    if 'user_id' not in req:
+        return "Missing user_id", 400
+    idUser = storage.get(User, req["user_id"])
+    if not idUser:
+        handle_err('err')
+    if 'text' not in req:
+        return "Missing text", 400
+    new_obj = Place()
+    setattr(new_obj, "place_id", place_id)
+    for key, value in req.items():
+        setattr(new_obj, key, value)
+    storage.new(new_obj)
+    storage.save()
+    return jsonify(new_obj.to_dict()), 201
+    # except:
+    #     return "Not a JSON\n", 400
 
 
 @app_views.route('/reviews/<review_id>',
                  methods=['PUT'], strict_slashes=False)
-def reviewsPut(user_id):
+def reviewsPut(review_id):
     """ This method update an object through http request """
     try:
         req = request.get_json()
