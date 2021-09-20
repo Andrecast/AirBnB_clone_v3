@@ -33,7 +33,7 @@ def reviews_id(review_id):
 @app_views.route('/reviews/<review_id>',
                  methods=['DELETE'], strict_slashes=False)
 def reviewDelete(review_id):
-    """ This method deletes a place by id """
+    """ This method deletes a review by id """
     obj = storage.get(Review, review_id)
     if obj:
         storage.delete(obj)
