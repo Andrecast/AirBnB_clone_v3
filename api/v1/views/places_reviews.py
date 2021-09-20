@@ -49,24 +49,24 @@ def reviewsPost(place_id):
     obj = storage.get(Place, place_id)
     if not obj:
         handle_err('err')
-    # try:
-    req = request.get_json()
-    if 'user_id' not in req:
-        return "Missing user_id", 400
-    idUser = storage.get(User, req["user_id"])
-    if not idUser:
-        handle_err('err')
-    if 'text' not in req:
-        return "Missing text", 400
-    new_obj = Place()
-    setattr(new_obj, "place_id", place_id)
-    for key, value in req.items():
-        setattr(new_obj, key, value)
-    storage.new(new_obj)
-    storage.save()
-    return jsonify(new_obj.to_dict()), 201
-    # except:
-    #     return "Not a JSON\n", 400
+    try:
+        req = request.get_json()
+        if 'user_id' not in req:
+            return "Missing user_id", 400
+        idUser = storage.get(User, req["user_id"])
+        if not idUser:
+            handle_err('err')
+        if 'text' not in req:
+            return "Missing text", 400
+        new_obj = Place()
+        setattr(new_obj, "place_id", place_id)
+        for key, value in req.items():
+            setattr(new_obj, key, value)
+        storage.new(new_obj)
+        storage.save()
+        return jsonify(new_obj.to_dict()), 201
+    except:
+        return "Not a JSON\n", 400
 
 
 @app_views.route('/reviews/<review_id>',
