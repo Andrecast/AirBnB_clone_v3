@@ -58,7 +58,7 @@ def reviewsPost(place_id):
             handle_err('err')
         if 'text' not in req:
             return "Missing text", 400
-        new_obj = Place()
+        new_obj = Review()
         setattr(new_obj, "place_id", place_id)
         for key, value in req.items():
             setattr(new_obj, key, value)
