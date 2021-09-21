@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 """Reviews file for views module"""
-from api.v1.views.places import places_id
 from api.v1.views import app_views
 from flask import jsonify, request
 from models.place import Place
@@ -57,8 +56,8 @@ def reviewsPost(place_id):
             return jsonify({"error": "Not found"}), 404
         if 'text' not in req:
             return "Missing text", 400
+        req["place_id"] = place_id
         new_obj = Review(**req)
-        new_obj["place_id"] = place_id
         storage.new(new_obj)
         storage.save()
         return jsonify(new_obj.to_dict()), 201
