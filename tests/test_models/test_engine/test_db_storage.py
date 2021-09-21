@@ -14,9 +14,7 @@ from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
-import json
-import os
-import pycodestyle
+import pep8
 import unittest
 DBStorage = db_storage.DBStorage
 classes = {"Amenity": Amenity, "City": City, "Place": Place,
@@ -32,14 +30,14 @@ class TestDBStorageDocs(unittest.TestCase):
 
     def test_pep8_conformance_db_storage(self):
         """Test that models/engine/db_storage.py conforms to PEP8."""
-        pep8s = pycodestyle.StyleGuide(quiet=True)
+        pep8s = pep8.StyleGuide(quiet=True)
         result = pep8s.check_files(['models/engine/db_storage.py'])
         self.assertEqual(result.total_errors, 0,
                          "Found code style errors (and warnings).")
 
     def test_pep8_conformance_test_db_storage(self):
         """Test tests/test_models/test_db_storage.py conforms to PEP8."""
-        pep8s = pycodestyle.StyleGuide(quiet=True)
+        pep8s = pep8.StyleGuide(quiet=True)
         result = pep8s.check_files(['tests/test_models/test_engine/\
 test_db_storage.py'])
         self.assertEqual(result.total_errors, 0,
@@ -99,7 +97,7 @@ class TestFileStorage(unittest.TestCase):
         obj_1.new(obj_1)
         obj_1.save()
         test_id1 = "null"
-        self.assertFalse(models.storage.get(State, test_id))
+        self.assertFalse(models.storage.get(State, test_id1))
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_count(self):
