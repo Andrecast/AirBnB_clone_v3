@@ -47,20 +47,18 @@ def reviewsPost(place_id):
     """ This method create a new object. """
     obj = storage.get(Place, place_id)
     if not obj:
-        jsonify({"error": "Not found"}), 404
+        return jsonify({"error": "Not found"}), 404
     try:
         req = request.get_json()
         if 'user_id' not in req:
             return "Missing user_id", 400
         idUser = storage.get(User, req["user_id"])
         if not idUser:
-            jsonify({"error": "Not found"}), 404
+            return jsonify({"error": "Not found"}), 404
         if 'text' not in req:
             return "Missing text", 400
-        new_obj = Review()
-        setattr(new_obj, "place_id", place_id)
-        for key, value in req.items():
-            setattr(new_obj, key, value)
+        new_obj = Review(**req)
+        new_obj["place_id"] = place_id
         storage.new(new_obj)
         storage.save()
         return jsonify(new_obj.to_dict()), 201
