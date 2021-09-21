@@ -17,11 +17,10 @@ def states():
 @app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
 def statesById(state_id):
     """ This method filters the state by id. """
-    states = storage.all(State).values()
-    obj = [item for item in states if item.id == state_id]
+    obj = storage.get(State, state_id)
     if obj:
-        return jsonify(obj[0].to_dict())
-    return jsonify({"error": "Not found"}), 404
+        return jsonify(obj.to_dict())
+    return handle_err('err')
 
 
 @app_views.route('/states/<state_id>',
