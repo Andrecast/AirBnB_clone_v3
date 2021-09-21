@@ -7,7 +7,6 @@ from models import city
 from models.state import State
 from models.city import City
 from models import storage
-from api.v1.app import handle_err
 
 
 @app_views.route('/states/<state_id>/cities',
@@ -17,7 +16,7 @@ def cities(state_id):
     needed_state = storage.get(State, state_id)
     if needed_state:
         return jsonify([item.to_dict() for item in needed_state.cities])
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/cities/<city_id>', methods=['GET'], strict_slashes=False)
@@ -26,7 +25,7 @@ def cities_id(city_id):
     obj = storage.get(City, city_id)
     if obj:
         return jsonify(obj.to_dict())
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/cities/<city_id>', methods=['DELETE'], strict_slashes=False)
@@ -37,7 +36,7 @@ def cities_delete(city_id):
         storage.delete(obj)
         storage.save()
         return jsonify({}), 200
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/states/<state_id>/cities',
@@ -46,7 +45,7 @@ def cities_create(state_id):
     """ This method create a new object. """
     obj = storage.get(State, state_id)
     if not obj:
-        return handle_err('err')
+        return jsonify({"error": "Not found"}), 404
     try:
         req = request.get_json()
         if 'name' not in req:
@@ -73,6 +72,6 @@ def cities_update(city_id):
                 setattr(obj, key, value)
             storage.save()
             return jsonify(obj.to_dict()), 200
-        return handle_err('err')
+        return jsonify({"error": "Not found"}), 404
     except:
         return "Not a JSON\n", 400
