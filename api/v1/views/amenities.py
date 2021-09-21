@@ -4,7 +4,6 @@ from api.v1.views import app_views
 from flask import jsonify, request
 from models.amenity import Amenity
 from models import storage
-from api.v1.app import handle_err
 
 
 @app_views.route('/amenities', methods=['GET'], strict_slashes=False)
@@ -22,7 +21,7 @@ def amenities_id(amenity_id):
     obj = [item for item in amenities if item.id == amenity_id]
     if obj:
         return jsonify(obj[0].to_dict())
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/amenities/<amenity_id>',
@@ -34,7 +33,7 @@ def amenitiesDelete(amenity_id):
         storage.delete(obj)
         storage.save()
         return jsonify({}), 200
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/amenities', methods=['POST'], strict_slashes=False)
@@ -64,6 +63,6 @@ def amenitiesPut(amenity_id):
                 setattr(obj, key, value)
             storage.save()
             return jsonify(obj.to_dict()), 200
-        return handle_err('err')
+        return jsonify({"error": "Not found"}), 404
     except:
         return "Not a JSON\n", 400
