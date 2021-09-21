@@ -7,7 +7,6 @@ from models.place import Place
 from models.review import Review
 from models.user import User
 from models import storage
-from api.v1.app import handle_err
 
 
 @app_views.route('/places/<place_id>/reviews',
@@ -17,7 +16,7 @@ def reviews(place_id):
     place_nedded = storage.get(Place, place_id)
     if place_nedded:
         return jsonify([item.to_dict() for item in place_nedded.reviews])
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/reviews/<review_id>',
@@ -27,7 +26,7 @@ def reviews_id(review_id):
     obj = storage.get(Review, review_id)
     if obj:
         return jsonify(obj.to_dict())
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/reviews/<review_id>',
@@ -39,7 +38,7 @@ def reviewDelete(review_id):
         storage.delete(obj)
         storage.save()
         return jsonify({}), 200
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/places/<place_id>/reviews',
@@ -48,14 +47,14 @@ def reviewsPost(place_id):
     """ This method create a new object. """
     obj = storage.get(Place, place_id)
     if not obj:
-        handle_err('err')
+        jsonify({"error": "Not found"}), 404
     try:
         req = request.get_json()
         if 'user_id' not in req:
             return "Missing user_id", 400
         idUser = storage.get(User, req["user_id"])
         if not idUser:
-            handle_err('err')
+            jsonify({"error": "Not found"}), 404
         if 'text' not in req:
             return "Missing text", 400
         new_obj = Review()
@@ -81,6 +80,6 @@ def reviewsPut(review_id):
                 setattr(obj, key, value)
             storage.save()
             return jsonify(obj.to_dict()), 200
-        return handle_err('err')
+        return jsonify({"error": "Not found"}), 404
     except:
         return "Not a JSON\n", 400
