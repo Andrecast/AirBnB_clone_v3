@@ -4,7 +4,6 @@ from api.v1.views import app_views
 from flask import jsonify, request
 from models.user import User
 from models import storage
-from api.v1.app import handle_err
 
 
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
@@ -22,7 +21,7 @@ def users_id(user_id):
     obj = [item for item in users if item.id == user_id]
     if obj:
         return jsonify(obj[0].to_dict())
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/users/<user_id>',
@@ -34,7 +33,7 @@ def usersDelete(user_id):
         storage.delete(obj)
         storage.save()
         return jsonify({}), 200
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/users', methods=['POST'], strict_slashes=False)
@@ -68,6 +67,6 @@ def usersPut(user_id):
                 setattr(obj, key, value)
             storage.save()
             return jsonify(obj.to_dict()), 200
-        return handle_err('err')
+        return jsonify({"error": "Not found"}), 404
     except:
         return "Not a JSON\n", 400
