@@ -6,7 +6,6 @@ from models.place import Place
 from models.city import City
 from models.user import User
 from models import storage
-from api.v1.app import handle_err
 
 
 @app_views.route('/cities/<city_id>/places',
@@ -16,7 +15,7 @@ def places(city_id):
     city_needed = storage.get(City, city_id)
     if city_needed:
         return jsonify([item.to_dict() for item in city_needed.places])
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/places/<place_id>',
@@ -26,7 +25,7 @@ def places_id(place_id):
     obj = storage.get(Place, place_id)
     if obj:
         return jsonify(obj.to_dict())
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/places/<place_id>',
@@ -38,7 +37,7 @@ def placesDelete(place_id):
         storage.delete(obj)
         storage.save()
         return jsonify({}), 200
-    return handle_err('err')
+    return jsonify({"error": "Not found"}), 404
 
 
 @app_views.route('/cities/<city_id>/places',
@@ -47,14 +46,14 @@ def placesPost(city_id):
     """ This method create a new object. """
     obj = storage.get(City, city_id)
     if not obj:
-        return handle_err('err')
+        return jsonify({"error": "Not found"}), 404
     try:
         req = request.get_json()
         if 'user_id' not in req:
             return "Missing user_id", 400
         idUser = storage.get(User, req["user_id"])
         if not idUser:
-            return handle_err('err')
+            return jsonify({"error": "Not found"}), 404
         if 'name' not in req:
             return "Missing name", 400
         new_obj = Place()
@@ -80,6 +79,6 @@ def placesPut(place_id):
                 setattr(obj, key, value)
             storage.save()
             return jsonify(obj.to_dict()), 200
-        return handle_err('err')
+        return jsonify({"error": "Not found"}), 404
     except:
         return "Not a JSON\n", 400
