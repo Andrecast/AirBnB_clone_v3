@@ -4,6 +4,7 @@ from api.v1.views import app_views
 from flask import jsonify, request
 from models.place import Place
 from models.city import City
+from models.state import State
 from models.user import User
 from models import storage
 
@@ -80,5 +81,29 @@ def placesPut(place_id):
             storage.save()
             return jsonify(obj.to_dict()), 200
         return jsonify({"error": "Not found"}), 404
+    except:
+        return "Not a JSON\n", 400
+
+
+@app_views.route('/places_search',
+                 methods=['POST'], strict_slashes=False)
+def places_search():
+    """ This method searchs for places """
+    try:
+        req = request.get_json()
+        if not req:
+            obj = storage.all(Place).values()
+            list_obj = [place.to_dict() for place in obj]
+            return jsonify(list_obj)
+
+        if 'states' in req:
+            list_places = list()
+            for state_id in req['states']:
+                state = storage.get(State, state_id)
+                for city in state.cities:
+                    for place in city.places:
+                        list_places.append(place.to_dict())
+            return jsonify(list_places)
+
     except:
         return "Not a JSON\n", 400
